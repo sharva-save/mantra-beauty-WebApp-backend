@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Booking = require('../models/Booking');
 const { protect } = require('../middleware/auth');
-const { sendBookingConfirmation, sendSalonNotification } = require('../utils/email');
+const { sendBookingConfirmation, sendSalonNotification,sendCancellationConfirmation,  sendSalonCancellationNotification        } = require('../utils/email');
 
 // GET /api/bookings/slots?date=2026-04-20
 // Returns booked slots for a given date
@@ -116,6 +116,18 @@ router.delete('/:id', protect, async (req, res) => {
 
     booking.status = 'cancelled';
     await booking.save();
+ try {
+      await sendCancellationConfirmation(req.user.email, req.user.fullName, booking);
+    } catch (emailErr) {
+      console.error('Cancellation email failed:', emailErr);
+    }
+
+    // ✅ Notify salon
+    try {
+      await sendSalonCancellationNotification(req.user.fullName, req.user.phone, booking);
+    } catch (notifyErr) {
+      console.error('Salon cancellation notification failed:', notifyErr);
+    }
 
     res.json({ message: 'Booking cancelled successfully' });
   } catch (err) {
