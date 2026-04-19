@@ -27,14 +27,15 @@ router.post('/signup', async (req, res) => {
     const verificationToken = uuidv4();
     const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
 
-    const user = new User({
-      fullName,
-      username: username.toLowerCase(),
-      email: email.toLowerCase(),
-      password,
-      verificationToken,
-      verificationExpires
-    });
+const user = new User({
+  fullName,
+  username,
+  email,
+  password,
+  phone: req.body.phone || '',
+  verificationToken,        // ✅ add this
+  verificationExpires       // ✅ add this
+});
 
     await user.save();
 
