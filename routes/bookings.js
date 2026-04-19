@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Booking = require('../models/Booking');
 const { protect } = require('../middleware/auth');
-const { sendBookingConfirmation } = require('../utils/email');
+const { sendBookingConfirmation, sendSalonNotification } = require('../utils/email');
 
 // GET /api/bookings/slots?date=2026-04-20
 // Returns booked slots for a given date
@@ -71,6 +71,11 @@ router.post('/', protect, async (req, res) => {
       await sendBookingConfirmation(req.user.email, req.user.fullName, booking);
     } catch (emailErr) {
       console.error('Booking email failed:', emailErr);
+    }
+     try {
+     await sendSalonNotification(req.user.fullName, req.user.phone, booking);
+    } catch (notifyErr) {
+      console.error('Salon notification email failed:', notifyErr);
     }
 
     res.status(201).json({ message: 'Booking confirmed!', booking });

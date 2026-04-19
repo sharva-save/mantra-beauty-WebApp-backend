@@ -118,5 +118,92 @@ const sendBookingConfirmation = async (email, fullName, booking) => {
 
   return transporter.sendMail(mailOptions);
 };
+const sendSalonNotification = async (customerName, customerPhone, booking) => {
+  const transporter = createTransporter();
+  const dateStr = new Date(booking.date).toLocaleDateString('en-IN', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
 
-module.exports = { sendVerificationEmail, sendBookingConfirmation };
+  const mailOptions = {
+    from: `"Manthra Beauty Bookings" <${process.env.EMAIL_USER}>`,
+    to: 'sharvasave2509@gmail.com',
+    subject: `🔔 New Appointment — ${customerName} | ${booking.service}`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: 'Helvetica Neue', sans-serif; background: #0a0a0a; color: #fff; margin: 0; padding: 0; }
+          .container { max-width: 600px; margin: 0 auto; background: #111; border: 1px solid #2a2a2a; border-radius: 16px; overflow: hidden; }
+          .header { background: linear-gradient(135deg, #1a1a1a, #2a1a0a); padding: 32px 40px; border-bottom: 1px solid #c9a96e33; }
+          .logo { font-size: 24px; font-weight: 900; letter-spacing: 8px; color: #c9a96e; text-transform: uppercase; }
+          .badge { display: inline-block; background: #c9a96e22; border: 1px solid #c9a96e55; color: #c9a96e; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; margin-top: 10px; }
+          .body { padding: 36px 40px; }
+          h2 { color: #fff; font-size: 20px; margin: 0 0 6px 0; }
+          .sub { color: #666; font-size: 13px; margin-bottom: 28px; }
+          .card { background: #1a1a1a; border: 1px solid #c9a96e33; border-radius: 12px; padding: 8px 0; margin-bottom: 20px; }
+          .row { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-bottom: 1px solid #222; }
+          .row:last-child { border-bottom: none; }
+          .label { color: #555; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; }
+          .value { color: #fff; font-weight: 600; font-size: 14px; }
+          .highlight { color: #c9a96e; font-weight: 700; font-size: 16px; }
+          .phone-link { color: #c9a96e; text-decoration: none; font-weight: 600; }
+          .footer { background: #0a0a0a; padding: 20px; text-align: center; color: #333; font-size: 11px; letter-spacing: 1px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="logo">MANTHRA</div>
+            <div class="badge">🔔 New Booking Alert</div>
+          </div>
+          <div class="body">
+            <h2>New Appointment Booked</h2>
+            <p class="sub">A customer just confirmed a time slot. Here are the details:</p>
+
+            <div class="card">
+              <div class="row">
+                <span class="label">Customer Name</span>
+                <span class="highlight">${customerName}</span>
+              </div>
+              <div class="row">
+                <span class="label">Phone Number</span>
+                <a href="tel:${customerPhone}" class="phone-link">${customerPhone || 'Not provided'}</a>
+              </div>
+              <div class="row">
+                <span class="label">Service</span>
+                <span class="value">${booking.service}</span>
+              </div>
+              <div class="row">
+                <span class="label">Category</span>
+                <span class="value">${booking.category}</span>
+              </div>
+              <div class="row">
+                <span class="label">Date</span>
+                <span class="value">${dateStr}</span>
+              </div>
+              <div class="row">
+                <span class="label">Time Slot</span>
+                <span class="highlight">${booking.timeSlot}</span>
+              </div>
+              <div class="row">
+                <span class="label">Price</span>
+                <span class="highlight">₹${booking.price}</span>
+              </div>
+              ${booking.notes ? `
+              <div class="row">
+                <span class="label">Notes</span>
+                <span class="value" style="max-width:60%;text-align:right">${booking.notes}</span>
+              </div>` : ''}
+            </div>
+          </div>
+          <div class="footer">© 2026 Manthra Beauty Lounge — Internal Notification</div>
+        </div>
+      </body>
+      </html>
+    `
+  };
+
+  return transporter.sendMail(mailOptions);
+};
+module.exports = { sendVerificationEmail, sendBookingConfirmation, sendSalonNotification };
