@@ -9,7 +9,7 @@ const bookingRoutes = require('./routes/bookings');
 const app = express();
 
 app.use(cors({
-  origin: "*",
+  origin: "https://mantra-beauty.vercel.app",
   credentials: true
 }));
 app.use(express.json());
